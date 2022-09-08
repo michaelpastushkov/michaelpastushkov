@@ -12,6 +12,7 @@ and much much more. This program is set only to COLLECT the data (based on curre
 including visualization is beyond the scope at this moment. It can easily be some with MySQL Workbench, SQL queries and other tools. 
 
 For example, plain data may look like this:
+
 id,cn,bytes_in,bytes_out,session_since,updated,ip4,network_name
 '19544','rodios-bk-ru_p4pn-virginia1','2790','2741','2022-09-08 04:07:51','2022-09-08 04:07:52','37.112.24.191','pastushkov.com'
 '19431','aleshaivanov1993-gmail-com_p4pn-virginia1','203655','286887','2022-09-08 04:02:42','2022-09-08 04:07:52','46.146.163.15','pastushkov.com'
