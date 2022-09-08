@@ -1,0 +1,19 @@
+TITLE,OpenVPN 2.4.7 x86_64-pc-linux-gnu [SSL (OpenSSL)] [LZO] [LZ4] [EPOLL] [PKCS11] [MH/PKTINFO] [AEAD] built on Mar 22 2022
+TIME,Tue Sep  6 01:32:10 2022,1662427930
+HEADER,CLIENT_LIST,Common Name,Real Address,Virtual Address,Virtual IPv6 Address,Bytes Received,Bytes Sent,Connected Since,Connected Since (time_t),Username,Client ID,Peer ID
+CLIENT_LIST,freemanfenix11-gmail-com_p4pn-virginia2,212.35.164.96:6059,10.8.0.8,,135152,28191,Tue Sep  6 01:29:11 2022,1662427751,UNDEF,4,4
+CLIENT_LIST,strushko23-gmail-com_p4pn-virginia2,46.138.95.232:1520,10.8.0.5,,9455,17768,Tue Sep  6 01:30:01 2022,1662427801,UNDEF,9,3
+CLIENT_LIST,mvdaut-yandex-ru_p4pn-virginia2,217.66.156.239:21712,10.8.0.2,,4351,4741,Tue Sep  6 01:29:10 2022,1662427750,UNDEF,2,2
+CLIENT_LIST,logist-sibdv-gmail-com_p4pn-virginia2,62.249.131.102:17244,10.8.0.6,,17887,56161,Tue Sep  6 01:29:13 2022,1662427753,UNDEF,5,5
+CLIENT_LIST,sleepy-niko-zzz-gmail-com_p4pn-virginia2,109.184.56.19:58422,10.8.0.3,,747789,21262684,Tue Sep  6 01:29:10 2022,1662427750,UNDEF,1,1
+CLIENT_LIST,vgd1791-icloud-com_p4pn-virginia2,178.47.82.47:1557,10.8.0.11,,3523,5716,Tue Sep  6 01:29:57 2022,1662427797,UNDEF,8,0
+HEADER,ROUTING_TABLE,Virtual Address,Common Name,Real Address,Last Ref,Last Ref (time_t)
+ROUTING_TABLE,10.8.0.8,freemanfenix11-gmail-com_p4pn-virginia2,212.35.164.96:6059,Tue Sep  6 01:31:59 2022,1662427919
+ROUTING_TABLE,10.8.0.2,mvdaut-yandex-ru_p4pn-virginia2,217.66.156.239:21712,Tue Sep  6 01:29:11 2022,1662427751
+ROUTING_TABLE,10.8.0.11,vgd1791-icloud-com_p4pn-virginia2,178.47.82.47:1557,Tue Sep  6 01:29:58 2022,1662427798
+ROUTING_TABLE,10.8.0.5,strushko23-gmail-com_p4pn-virginia2,46.138.95.232:1520,Tue Sep  6 01:31:21 2022,1662427881
+ROUTING_TABLE,10.8.0.3,sleepy-niko-zzz-gmail-com_p4pn-virginia2,109.184.56.19:58422,Tue Sep  6 01:32:07 2022,1662427927
+ROUTING_TABLE,10.8.0.6,logist-sibdv-gmail-com_p4pn-virginia2,62.249.131.102:17244,Tue Sep  6 01:31:22 2022,1662427882
+GLOBAL_STATS,Max bcast/mcast queue length,7
+END
+
