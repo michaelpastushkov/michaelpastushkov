@@ -1,0 +1,6 @@
+#!/bin/sh  
+while true  
+do  
+  sudo ./ovpn-tracker   
+  sleep 60  
+done
