@@ -16,12 +16,7 @@
 
 #define END_MARKER "END"
 
-int port = 5555;
-char *mhosts[] = {
-    "p4pn.net",
-    "pastushkov.com",
-    ""
-};
+remote_host remote_hosts[MAX_REMOTE_HOSTS];
 
 static char *status_cmd = "status\n";
 char line[1024];
@@ -78,7 +73,8 @@ int connect_remote(char *mhost, int port) {
     ptr = &((struct sockaddr_in *) res->ai_addr)->sin_addr;
     inet_ntop (res->ai_family, ptr, addrstr, sizeof(addrstr));
     
-    printf ("connecting to: %s %s\n", addrstr, res->ai_canonname);
+    printf ("connecting to ovpn remote management: %s:%i %s\n",
+            addrstr, port, res->ai_canonname);
     
     if (inet_pton(AF_INET, addrstr, &serv_addr.sin_addr)<=0) {
         printf("inet_pton error occured\n");
@@ -114,8 +110,10 @@ int read_remote() {
     int i;
     int conn_count = 0;
     
-    for (i=0; *mhosts[i]; i++) {
-        if (connect_remote(mhosts[i], port) == 0) {
+    for (i=0; i<MAX_REMOTE_HOSTS; i++) {
+        if (remote_hosts[i].host[0] == 0)
+            break;
+        if (connect_remote(remote_hosts[i].host, remote_hosts[i].port) == 0) {
             conn_count++;
         }
     }
