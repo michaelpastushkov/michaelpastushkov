@@ -27,13 +27,6 @@ int main( int argc, char *argv[] ) {
         return -1;
     }
 
-    /**
-    if (read_local() != 0) {
-        printf("can't read %s\n", status_log);
-        return -1;
-    }
-    */
-     
     read_remote();
      
     db_close();
