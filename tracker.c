@@ -27,8 +27,11 @@ int main( int argc, char *argv[] ) {
         return -1;
     }
 
-    read_remote();
-     
+    while (1) {
+        read_remote();
+        sleep(60);
+    }
+ 
     db_close();
     
     return 0;

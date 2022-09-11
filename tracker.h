@@ -12,7 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
+#include <unistd.h>
 #include <mysql/mysql.h>
 
 #define MAX_REMOTE_HOSTS 4
