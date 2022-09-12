@@ -37,8 +37,7 @@ int get_ip4_info(char *ip4, char *info) {
     static int error_count = 0;
     
     if (error_count > MAX_ERRORS) {
-        *info = 0;
-        return 0;
+        return -1;
     }
 
     sprintf(url, "%s/%s?token=%s", api_host, ip4, api_token);
@@ -84,10 +83,10 @@ int get_ip4_info(char *ip4, char *info) {
                 } else if (strcmp("city", p) == 0) {
                     strncpy(city, c, sizeof(city));
                 } else if (strcmp("error", p) == 0) {
+                    error_count++;
                     if (error_count > MAX_ERRORS) {
                         printf("geo api max error count, switching off until restart\n");
-                        *info = 0;
-                        return 0;
+                        return -1;
                     }
 
                 }
