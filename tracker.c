@@ -29,7 +29,7 @@ int main( int argc, char *argv[] ) {
 
     while (1) {
         read_remote();
-        sleep(180);
+        sleep(60);
     }
  
     db_close();
