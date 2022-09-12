@@ -122,11 +122,11 @@ int proc_line(char *line, char *source) {
         }
 
     }
-    
+    /*
     if (ses.ip4) {
         get_ip4_info(ses.ip4, ses.geo);
     }
-    
+    */
     if (ses.cn) {
         if (record_session(&ses) != 0)
             return -1;
