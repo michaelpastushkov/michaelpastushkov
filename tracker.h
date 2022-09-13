@@ -16,6 +16,12 @@
 #include <mysql/mysql.h>
 
 #define MAX_REMOTE_HOSTS 4
+#define MODE_LOCAL 1
+#define MODE_REMOTE 2
+
+int mode;
+extern int repeat_time;
+extern char status_log[256];
 
 extern MYSQL *con;
 extern char db_host[32];
@@ -23,15 +29,26 @@ extern char db_user[32];
 extern char db_pass[32];
 extern char db_schema[32];
 
-extern char *status_log;
-extern char *mhost;
-extern int port;
+extern char geoip_data[256];
+extern int geoip_on;
 
 typedef struct {
     char host[32];
     int port;
 } remote_host;
 extern remote_host remote_hosts[];
+
+typedef struct _session {
+    char *cn;
+    long bin;
+    long bout;
+    time_t stime;
+    char *ip4;
+    char *port;
+    char country[64];
+    char city[64];
+    char *source;
+} session;
 
 int db_open();
 void db_close();
@@ -41,7 +58,7 @@ int read_local();
 int read_remote();
 int proc_line(char *line, char *source);
 int read_config();
-int get_ip4_info(char *ip4, char *info);
+int get_ip4_info(session *ses);
 
 void remove_char(char* s, char c);
 

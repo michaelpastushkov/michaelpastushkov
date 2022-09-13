@@ -11,7 +11,7 @@ void remove_char(char* s, char c) {
     char* d = s;
     do {
         while (*d == c) {
-            ++d;
+            d++;
         }
     } while ((*s++ = *d++));
 }

@@ -8,8 +8,7 @@
 
 #include "tracker.h"
 
-char *status_log = "sample-data/status.log";
-//char *status_log = "/var/log/openvpn/status.log";
+char status_log[256] = "sample-data/status.log";
 
 int read_local() {
 
