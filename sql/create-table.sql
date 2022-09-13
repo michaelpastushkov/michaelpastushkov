@@ -7,7 +7,8 @@ CREATE TABLE `sessions` (
   `etime` datetime DEFAULT NULL,
   `ip4` varchar(45) DEFAULT NULL,
   `port` int DEFAULT NULL,
-  `geo` varchar(45) DEFAULT NULL,
+  `country` varchar(45) DEFAULT NULL,
+  `city` varchar(45) DEFAULT NULL,
   `source` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2816 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=4863 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

@@ -1,5 +1,5 @@
 TARGET = ovpn-tracker
-LIBS = -l mysqlclient -l curl
+LIBS = -lmysqlclient -lGeoIP
 CC = gcc
 CFLAGS = -g -Wall
 

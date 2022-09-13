@@ -9,6 +9,9 @@
 
 #include "tracker.h"
 
+int mode = MODE_REMOTE;
+int repeat_time = 60;
+
 int main( int argc, char *argv[] ) {
 
     time_t now;
@@ -28,8 +31,16 @@ int main( int argc, char *argv[] ) {
     }
 
     while (1) {
-        read_remote();
-        sleep(60);
+        
+        if (mode == MODE_REMOTE) {
+            read_remote();
+        } else {
+            read_local();
+        }
+        
+        if (!repeat_time)
+            break;
+        sleep(repeat_time);
     }
  
     db_close();

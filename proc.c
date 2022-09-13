@@ -11,17 +11,6 @@
 #define CLIENT_LIST "CLIENT_LIST"
 #define TIME_FORMAT "%Y-%m-%d %H:%M:%S"
 
-typedef struct _session {
-    char *cn;
-    long bin;
-    long bout;
-    time_t stime;
-    char *ip4;
-    char *port;
-    char *geo;
-    char *source;
-} session;
-
 int check_session(session *ses, char *tf) {
 
     char query[1024];
@@ -51,19 +40,19 @@ int record_session(session *ses) {
     if (check_session(ses, tf)) {
         // Update session numbers
         sprintf(query, "UPDATE sessions SET bin=%ld, bout=%ld, \
-                cn = '%s', etime='%s', source='%s', geo = '%s'\
+                cn = '%s', etime='%s', source='%s', country = '%s', city = '%s' \
                 WHERE ip4 = '%s' AND port = %s AND stime = '%s'",
                 ses->bin, ses->bout, ses->cn, tfn, ses->source,
-                ses->geo, ses->ip4, ses->port, tf);
+                ses->country, ses->city, ses->ip4, ses->port, tf);
         if (db_query(query) != 0)
             return -1;
     } else {
         // New session
         sprintf(query, "INSERT INTO sessions \
-                (cn, bin, bout, stime, etime, ip4, port, geo, source) \
-                VALUES ('%s', %ld, %ld, '%s', '%s', '%s', %s, '%s', '%s')",
+                (cn, bin, bout, stime, etime, ip4, port, country, city, source) \
+                VALUES ('%s', %ld, %ld, '%s', '%s', '%s', %s, '%s', '%s', '%s')",
                 ses->cn, ses->bin, ses->bout, tf, tfn,
-                ses->ip4, ses->port, ses->geo,  ses->source);
+                ses->ip4, ses->port, ses->country, ses->city, ses->source);
         if (db_query(query) != 0)
             return -1;
     }
@@ -76,12 +65,9 @@ int proc_line(char *line, char *source) {
     int i, j, e = 0;
     char *s = line;
     session ses;
-    char geo[48];
 
     memset(&ses, 0, sizeof(ses));
-    memset(geo, 0, sizeof(geo));
     ses.source = source;
-    ses.geo = geo;
 
     //printf(" proc_line %s\n", line);
 
@@ -122,11 +108,11 @@ int proc_line(char *line, char *source) {
         }
 
     }
-    /*
-    if (ses.ip4) {
-        get_ip4_info(ses.ip4, ses.geo);
+    
+    if (ses.ip4 && geoip_on) {
+        get_ip4_info(&ses);
     }
-    */
+    
     if (ses.cn) {
         if (record_session(&ses) != 0)
             return -1;

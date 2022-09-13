@@ -8,94 +8,40 @@
 //
 
 #include "tracker.h"
-#include <curl/curl.h>
 
-#define MAX_ERRORS 20
+#include <GeoIP.h>
+#include <GeoIPCity.h>
 
-char *api_host = "ipinfo.io";
-char *api_token = "e0d4f45cec3323";
+char geoip_data[256] = "../geoip-data/GeoIPCity.dat";
+int geoip_on = 1;
 
+static const char *str (const char *p) { return p ? p : ""; }
 
-size_t write_data (void *ptr, size_t size, size_t nmemb, char *data) {
+int get_ip4_info(session *ses) {
     
-    //printf("received: %ld, %ld, %s\n", size, nmemb, ptr);
-    
-    memcpy (data, ptr, size * nmemb);
-    return size * nmemb;
-}
+    static GeoIP *gi = 0;
+    GeoIPRecord *gir;
 
+    if (!gi)
+        gi = GeoIP_open(geoip_data, GEOIP_INDEX_CACHE);
 
-int get_ip4_info(char *ip4, char *info) {
-    
-    int i;
-    char *p, *c;
-    CURL *curl;
-    CURLcode res;
-    char url[128];
-    char data[2048];
-    char country[16], city[32];
-    static int error_count = 0;
-    
-    if (error_count > MAX_ERRORS) {
+    if (gi == NULL) {
+        printf("error opening geoip database: %s\n", geoip_data);
+        printf("switching geoip off until restart (check config)\n");
+        geoip_on = 0;
         return -1;
     }
 
-    sprintf(url, "%s/%s?token=%s", api_host, ip4, api_token);
-    memset(data, 0, sizeof(data));
-    memset(country, 0, sizeof(country));
-    memset(city, 0, sizeof(city));
-
-    curl = curl_easy_init();
-    if (!curl) {
-        printf("curl init error\n");
-        return -1;
+    gir = GeoIP_record_by_name(gi, (const char *)ses->ip4);
+    if (gir != NULL) {
+        strncpy(ses->country, str(gir->country_code), sizeof(ses->country));
+        strncpy(ses->city, str(gir->city), sizeof(ses->city));
+        remove_char(ses->city, '\'');
+        
+        //printf("%s: country: %s, city: %s\n", ses->ip4, ses->country, ses->city);
     }
-    
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
-    
-    res = curl_easy_perform(curl);
-    if (res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-        return -1;
-    }
-    
-    curl_easy_cleanup(curl);
-    
-    p = data;
-    for (i=0; i<sizeof(data); i++) {
-        if (data[i] == '\n') {
-            data[i] = 0;
+               
+    //GeoIP_delete(gi);
 
-            remove_char(p, '"');
-            remove_char(p, ',');
-            remove_char(p, ' ');
-
-            c = strchr(p, ':');
-            if (c) {
-                *c = 0;
-                c++;
-                if (strcmp("country", p) == 0) {
-                    strncpy(country, c, sizeof(country));
-                    error_count = 0;
-                } else if (strcmp("city", p) == 0) {
-                    strncpy(city, c, sizeof(city));
-                } else if (strcmp("error", p) == 0) {
-                    error_count++;
-                    if (error_count > MAX_ERRORS) {
-                        printf("geo api max error count, switching off until restart\n");
-                        return -1;
-                    }
-
-                }
-            }
-            p = data + i + 1;
-        }
-    }
-
-    sprintf(info, "%s, %s", country, city);
-    
     return 0;
-  }
+}

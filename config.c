@@ -9,7 +9,7 @@
 
 static char *config_file = "ovpn-tracker.config";
 
-int rh_index = 0; // non-cosher but easy way to handle multiple hosts
+int rh_index = 0; // non-kosher but easy way to handle multiple hosts
 
 int parse_config_line(char *line) {
     
@@ -37,6 +37,18 @@ int parse_config_line(char *line) {
         strncpy(db_pass, v, sizeof(db_pass));
     } else if (strcmp(n, "db_schema") == 0) {
         strncpy(db_schema, v, sizeof(db_schema));
+    } else if (strcmp(n, "status_log") == 0) {
+        strncpy(status_log, v, sizeof(status_log));
+    } else if (strcmp(n, "mode") == 0) {
+        mode = strcmp(v, "local") == 0 ? MODE_LOCAL : MODE_REMOTE;
+    } else if (strcmp(n, "repeat_time") == 0) {
+        repeat_time = atoi(v);
+    } else if (strcmp(n, "geoip") == 0) {
+        if (strcmp(v, "on") == 0) {
+            geoip_on = 1;
+        }
+    } else if (strcmp(n, "geoip_data") == 0) {
+        strncpy(geoip_data, v, sizeof(geoip_data));
     } else if (strcmp(n, "remote_host") == 0) {
         if (rh_index >= MAX_REMOTE_HOSTS) {
             printf("can't handle more than %i remote hosts\n", MAX_REMOTE_HOSTS);
