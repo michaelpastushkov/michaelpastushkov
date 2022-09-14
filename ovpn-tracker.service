@@ -1,0 +1,11 @@
+[Unit]
+Description=openvpn server tracker
+
+[Service]
+User=root
+WorkingDirectory=/ubuntu/ovpn-tracker
+ExecStart=ovpn-tracker
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
