@@ -3,8 +3,8 @@ Description=openvpn server tracker
 
 [Service]
 User=root
-WorkingDirectory=/ubuntu/ovpn-tracker
-ExecStart=ovpn-tracker
+WorkingDirectory=/home/ubuntu/ovpn-tracker
+ExecStart=/home/ubuntu/ovpn-tracker/ovpn-tracker
 Restart=always
 
 [Install]

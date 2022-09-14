@@ -38,6 +38,8 @@ int main( int argc, char *argv[] ) {
             read_local();
         }
         
+        check_alerts();
+        
         if (!repeat_time)
             break;
         sleep(repeat_time);

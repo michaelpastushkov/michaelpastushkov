@@ -59,6 +59,7 @@ int read_remote();
 int proc_line(char *line, char *source);
 int read_config();
 int get_ip4_info(session *ses);
+int check_alerts();
 
 void remove_char(char* s, char c);
 
