@@ -43,6 +43,8 @@ int parse_config_line(char *line) {
         mode = strcmp(v, "local") == 0 ? MODE_LOCAL : MODE_REMOTE;
     } else if (strcmp(n, "repeat_time") == 0) {
         repeat_time = atoi(v);
+    } else if (strcmp(n, "daily_limit_mib") == 0) {
+        daily_limit_mib = atoi(v);
     } else if (strcmp(n, "geoip") == 0) {
         if (strcmp(v, "on") == 0) {
             geoip_on = 1;

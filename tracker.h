@@ -23,6 +23,8 @@ int mode;
 extern int repeat_time;
 extern char status_log[256];
 
+extern int daily_limit_mib;
+
 extern MYSQL *con;
 extern char db_host[32];
 extern char db_user[32];
