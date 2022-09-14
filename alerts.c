@@ -50,8 +50,10 @@ int check_alerts() {
 
             //printf("alert: mib: %.2f, %i\n", mib, daily_limit_mib);
 
-            sprintf(details, "Daily traffic linmit %i exceeded (%.2f)", daily_limit_mib, mib);
-            sprintf(query2, "INSERT INTO alerts (cn, details) VALUES ('%s', '%s')", cn, details);
+            sprintf(details, "Daily traffic limit %i MiB exceeded (%.2f)",
+                    daily_limit_mib, mib);
+            sprintf(query2, "INSERT INTO alerts (cn, details) VALUES ('%s', '%s')",
+                    cn, details);
             db_query(query2);
             alert_count++;
 
