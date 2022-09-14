@@ -13,7 +13,7 @@ int check_alerts() {
     
     char query[1024];
     char query2[1024];
-    char details[1024];
+    char details[256];
     MYSQL_RES *result;
     MYSQL_ROW row;
     char *cn;
