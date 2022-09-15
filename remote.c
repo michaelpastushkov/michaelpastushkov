@@ -19,15 +19,15 @@
 remote_host remote_hosts[MAX_REMOTE_HOSTS];
 
 static char *status_cmd = "status\n";
-char line[1024];
 
-int read_line(int sockfd) {
+int read_line(int sockfd, char *line, size_t len) {
 
     int n = 0;
     char b;
 
     while (read(sockfd, &b, 1) == 1) {
-        if (n >= sizeof(line)) {
+        
+        if (n >= len) {
             line[n] = 0;
             break;
         } else if (b == '\r') {
@@ -38,6 +38,7 @@ int read_line(int sockfd) {
             line[n++] = b;
         }
     }
+    
     return n;
 }
 
@@ -46,7 +47,6 @@ int connect_remote(char *mhost, int port) {
     int sockfd = 0;
     struct sockaddr_in serv_addr;
     struct addrinfo hints, *res;
-    int line_count = 0;
     char addrstr[100];
     void *ptr;
     
@@ -85,22 +85,24 @@ int connect_remote(char *mhost, int port) {
         printf("error: connect failed \n");
         return -1;
     }
+   
+    return sockfd;
+}
 
-    write (sockfd, status_cmd, strlen(status_cmd));
+int close_remote(int sockfd) {
+    close(sockfd);
+    return 0;
+}
+
+remote_host* get_host_by_source(char *source) {
+
+    int i;
     
-    while (read_line(sockfd)) {
-        
-        if (strcmp(line, END_MARKER) == 0) {
-            break;
-        }
-        
-        if (proc_line(line, mhost) == 0) {
-            line_count++;
+    for (i=0; i<MAX_REMOTE_HOSTS && remote_hosts[i].host[0]; i++) {
+        if (strcmp(remote_hosts[i].host, source) == 0) {
+            return &remote_hosts[i];
         }
     }
-    close(sockfd);
-    
-    printf("lines processed: %i\n", line_count);
     
     return 0;
 }
@@ -109,13 +111,40 @@ int read_remote() {
     
     int i;
     int conn_count = 0;
-    
+    int sockfd;
+    char line[1024];
+
     for (i=0; i<MAX_REMOTE_HOSTS; i++) {
+
+        int line_count = 0;
+
         if (remote_hosts[i].host[0] == 0)
             break;
-        if (connect_remote(remote_hosts[i].host, remote_hosts[i].port) == 0) {
-            conn_count++;
+        
+        sockfd = connect_remote(remote_hosts[i].host, remote_hosts[i].port);
+        if (sockfd <= 0) {
+            printf("error connecting to %s:%i\n", remote_hosts[i].host, remote_hosts[i].port);
+            continue;
         }
+            
+        write (sockfd, status_cmd, strlen(status_cmd));
+        
+        while (read_line(sockfd, line, sizeof(line))) {
+            
+            if (strcmp(line, END_MARKER) == 0) {
+                break;
+            }
+            
+            if (proc_line(line, remote_hosts[i].host) == 0) {
+                line_count++;
+            }
+        }
+
+        close_remote(sockfd);
+        
+        printf("lines processed: %i\n", line_count);
+        conn_count++;
+
     }
 
     printf("connections processed: %i\n", conn_count);
