@@ -58,6 +58,11 @@ int db_query(char *query);
 
 int read_local();
 int read_remote();
+int connect_remote(char *mhost, int port);
+int close_remote();
+int read_line(int sockfd, char *line, size_t len);
+remote_host* get_host_by_source(char *source);
+
 int proc_line(char *line, char *source);
 int read_config();
 int get_ip4_info(session *ses);
