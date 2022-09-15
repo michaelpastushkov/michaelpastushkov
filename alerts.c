@@ -93,7 +93,7 @@ int check_alerts() {
             //printf("alert: mib: %.2f, %i\n", mib, daily_limit_mib);
             
             if (kill_cn(cn, source) == 0) {
-                strcpy(killed, "connection killed");
+                sprintf (killed, "connection on %s killed", source);
             }
             
             sprintf(details,
