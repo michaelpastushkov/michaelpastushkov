@@ -1,5 +1,7 @@
 [Unit]
 Description=openvpn server tracker
+After=openvpn-server@.service mysql.service
+Requires=mysql.service
 
 [Service]
 User=root
