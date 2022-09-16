@@ -19,6 +19,10 @@ int kill_cn(char *cn, char *source) {
     char line[256];
     remote_host *rh;
     
+    if (strcmp("UNDEF", cn) == 0) {
+        return -2;
+    }
+    
     sprintf(kill_cmd, "kill %s\n", cn);
     
     rh = get_host_by_source(source);
