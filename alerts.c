@@ -19,7 +19,7 @@ int kill_cn(char *cn, char *source) {
     char line[256];
     remote_host *rh;
     
-    if (strcmp("UNDEF", cn) == 0) {
+    if (strstr("UNDEF", cn)) {
         return -2;
     }
     
