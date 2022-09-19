@@ -15,7 +15,8 @@ int repeat_time = 60;
 int main( int argc, char *argv[] ) {
 
     time_t now;
- 
+    time_t last_cleanup = 0;
+
     time(&now);
     printf("ovpn-tracker: %s", ctime(&now));
 
@@ -40,6 +41,14 @@ int main( int argc, char *argv[] ) {
         
         check_alerts();
         
+        time(&now);
+        if (!last_cleanup || now - last_cleanup > (60 * 60 * 24)) {
+            if (db_cleanup() == 0) {
+                printf("database cleanup: %s", ctime(&now));
+            }
+            last_cleanup = now;
+        }
+
         if (!repeat_time)
             break;
         sleep(repeat_time);

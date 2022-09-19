@@ -48,3 +48,19 @@ int db_query(char *query) {
 
     return 0;
 }
+
+int db_cleanup() {
+
+    int ret;
+    char query[1024];
+
+    sprintf(query, "DELETE FROM sessions WHERE etime >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+    ret = db_query(query);
+    
+    sprintf(query, "DELETE FROM alerts WHERE date >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+    ret += db_query(query);
+
+    return ret;
+}
+
+

@@ -67,6 +67,7 @@ int proc_line(char *line, char *source);
 int read_config();
 int get_ip4_info(session *ses);
 int check_alerts();
+int db_cleanup();
 
 void remove_char(char* s, char c);
 
