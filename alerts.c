@@ -19,10 +19,7 @@ int kill_cn(char *cn, char *source) {
     char line[256];
     remote_host *rh;
     
-    printf("cn: [%s]\bn", cn);
-    
-    if (strstr("UNDEF", cn)) {
-        printf("yeah ..\n");
+    if (strcmp("UNDEF", cn) == 0) {
         return -2;
     }
     
@@ -88,10 +85,12 @@ int check_alerts() {
     }
     
     while ((row = mysql_fetch_row(result))) {
+        
         cn = row[0];
         sbout = atol(row[1]);
         source = row[2];
         mib = sbout / MIB_DIV;
+        killed[0] = 0;
 
         //printf("mib: %.2f, %ld\n", mib, sbout);
         
