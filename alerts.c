@@ -19,7 +19,10 @@ int kill_cn(char *cn, char *source) {
     char line[256];
     remote_host *rh;
     
+    printf("cn: [%s]\bn", cn);
+    
     if (strstr("UNDEF", cn)) {
+        printf("yeah ..\n");
         return -2;
     }
     

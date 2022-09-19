@@ -38,7 +38,7 @@ void db_close() {
 
 int db_query(char *query) {
     
-    //printf("SQL: %s\n", query);
+    // printf("SQL: %s\n", query);
     
     if (mysql_query(con, query)) {
         fprintf(stderr, "%s\n", mysql_error(con));
