@@ -31,7 +31,7 @@ int kill_cn(char *cn, char *source) {
     
     sockfd = connect_remote(rh->host, rh->port);
     if (sockfd <= 0) {
-        printf("error connecting to %s:%i\n", rh->host, rh->port);
+        log_printf("error connecting to %s:%i\n", rh->host, rh->port);
         return -1;
     }
     
@@ -43,10 +43,10 @@ int kill_cn(char *cn, char *source) {
     read_line(sockfd, line, sizeof(line)); // actual status line
 
     if (strstr(line, "SUCCESS:") && strstr(line, cn)) {
-        printf("connection %s on %s killed\n", cn, source);
+        log_printf("connection %s on %s killed\n", cn, source);
     } else {
-        printf("connection %s on %s NOT killed\n", cn, source);
-        printf("%s\n", line);
+        log_printf("connection %s on %s NOT killed\n", cn, source);
+        log_printf("%s\n", line);
     }
     
     close_remote(sockfd);
@@ -80,7 +80,7 @@ int check_alerts() {
 
     result = mysql_store_result(con);
     if (!result) {
-        printf("SQL results error");
+        log_printf("SQL results error");
         return -1;
     }
     
@@ -92,11 +92,11 @@ int check_alerts() {
         mib = sbout / MIB_DIV;
         killed[0] = 0;
 
-        //printf("mib: %.2f, %ld\n", mib, sbout);
+        //log_printf("mib: %.2f, %ld\n", mib, sbout);
         
         if (mib > daily_limit_mib) {
 
-            //printf("alert: mib: %.2f, %i\n", mib, daily_limit_mib);
+            //log_printf("alert: mib: %.2f, %i\n", mib, daily_limit_mib);
             
             if (kill_cn(cn, source) == 0) {
                 sprintf (killed, "connection on %s killed", source);
@@ -116,7 +116,7 @@ int check_alerts() {
     }
     mysql_free_result(result);
     
-    printf("alerts: %i\n", alert_count);
+    log_printf("alerts: %i\n", alert_count);
     
     return 0;
 }

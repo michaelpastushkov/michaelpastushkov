@@ -69,7 +69,7 @@ int proc_line(char *line, char *source) {
     memset(&ses, 0, sizeof(ses));
     ses.source = source;
 
-    //printf(" proc_line %s\n", line);
+    //log_printf(" proc_line %s\n", line);
 
     if (strncmp(CLIENT_LIST, line, strlen(CLIENT_LIST)) != 0) {
         return -1;

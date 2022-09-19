@@ -70,5 +70,6 @@ int check_alerts();
 int db_cleanup();
 
 void remove_char(char* s, char c);
+int log_printf (const char *format, ...);
 
 #endif /* tracker_h */

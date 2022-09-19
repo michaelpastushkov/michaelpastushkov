@@ -26,8 +26,8 @@ int get_ip4_info(session *ses) {
         gi = GeoIP_open(geoip_data, GEOIP_INDEX_CACHE);
 
     if (gi == NULL) {
-        printf("error opening geoip database: %s\n", geoip_data);
-        printf("switching geoip off until restart (check config)\n");
+        log_printf("error opening geoip database: %s\n", geoip_data);
+        log_printf("switching geoip off until restart (check config)\n");
         geoip_on = 0;
         return -1;
     }
@@ -38,7 +38,7 @@ int get_ip4_info(session *ses) {
         strncpy(ses->city, str(gir->city), sizeof(ses->city));
         remove_char(ses->city, '\'');
         
-        //printf("%s: country: %s, city: %s\n", ses->ip4, ses->country, ses->city);
+        //log_printf("%s: country: %s, city: %s\n", ses->ip4, ses->country, ses->city);
     }
                
     //GeoIP_delete(gi);

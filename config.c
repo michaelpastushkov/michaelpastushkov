@@ -53,12 +53,12 @@ int parse_config_line(char *line) {
         strncpy(geoip_data, v, sizeof(geoip_data));
     } else if (strcmp(n, "remote_host") == 0) {
         if (rh_index >= MAX_REMOTE_HOSTS) {
-            printf("can't handle more than %i remote hosts\n", MAX_REMOTE_HOSTS);
+            log_printf("can't handle more than %i remote hosts\n", MAX_REMOTE_HOSTS);
             return -1;
         }
         p = strchr(v, ':');
         if (!p) {
-            printf("%s must be in format host:port\n", line);
+            log_printf("%s must be in format host:port\n", line);
             return -1;
         }
         *p++ = 0;
@@ -77,7 +77,7 @@ int read_config() {
     char line[1024];
     
     if (!fp) {
-        printf("can't read config file %s\n", config_file);
+        log_printf("can't read config file %s\n", config_file);
         return -1;
     }
 
