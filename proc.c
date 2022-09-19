@@ -82,6 +82,7 @@ int proc_line(char *line, char *source) {
             switch (e) {
                 case 1:
                     ses.cn = s;
+                    remove_char(ses.cn, ' ');
                     break;
                 case 2:
                     ses.ip4 = s;
