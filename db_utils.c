@@ -19,12 +19,12 @@ int db_open() {
         
     con = mysql_init(NULL);
     if (con == NULL) {
-        fprintf(stderr, "%s\n", mysql_error(con));
+        log_printf(0, "%s\n", mysql_error(con));
         return -1;
     }
 
     if (mysql_real_connect(con, db_host, db_user, db_pass, db_schema, 0, NULL, 0) == NULL) {
-        fprintf(stderr, "%s\n", mysql_error(con));
+        log_printf(0, "%s\n", mysql_error(con));
         mysql_close(con);
         return -1;
     }
@@ -41,7 +41,7 @@ int db_query(char *query) {
     log_printf(2, "SQL: %s\n", query);
     
     if (mysql_query(con, query)) {
-        log_printf("MySQL error: %s\n%s\n", mysql_error(con), query);
+        log_printf(0, "MySQL error: %s\n%s\n", mysql_error(con), query);
         return -1;
     }
 
