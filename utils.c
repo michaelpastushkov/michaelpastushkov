@@ -8,7 +8,7 @@
 #include "tracker.h"
 
 char *log_file = "/var/log/ovpn-tracker.log";
-int log_level = 2;
+int log_level = 1;
 
 void remove_char(char* s, char c) {
     char* d = s;

@@ -15,7 +15,7 @@ char db_schema[32] = "p4pn";
 
 int db_open() {
     
-    printf("connecting MySQL: %s %s\n", db_host, db_schema);
+    log_printf(1, "connecting MySQL: %s %s\n", db_host, db_schema);
         
     con = mysql_init(NULL);
     if (con == NULL) {
