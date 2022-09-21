@@ -18,8 +18,7 @@ int main( int argc, char *argv[] ) {
     time_t last_cleanup = 0;
 
     //time(&now);
-    //log_printf("ovpn-tracker: %s", ctime(&now));
-    log_printf("=== ovpn-tracker starts\n");
+    log_printf(0, "=== ovpn-tracker starts\n");
 
     if (read_config() != 0) {
         return -1;
@@ -28,7 +27,7 @@ int main( int argc, char *argv[] ) {
     log_printf("db_host: %s\n", db_host);
     
     if (db_open() != 0) {
-        log_printf("can't connect to database");
+        log_printf(0, "can't connect to database");
         return -1;
     }
 
@@ -45,7 +44,7 @@ int main( int argc, char *argv[] ) {
         time(&now);
         if (!last_cleanup || now - last_cleanup > (60 * 60 * 24)) {
             if (db_cleanup() == 0) {
-                log_printf("database cleanup: %s", ctime(&now));
+                log_printf(1, "database cleanup: %s", ctime(&now));
             }
             last_cleanup = now;
         }

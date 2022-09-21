@@ -38,7 +38,7 @@ void db_close() {
 
 int db_query(char *query) {
     
-    // log_printf("SQL: %s\n", query);
+    log_printf(2, "SQL: %s\n", query);
     
     if (mysql_query(con, query)) {
         log_printf("MySQL error: %s\n%s\n", mysql_error(con), query);

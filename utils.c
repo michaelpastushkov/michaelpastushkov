@@ -8,6 +8,7 @@
 #include "tracker.h"
 
 char *log_file = "/var/log/ovpn-tracker.log";
+int log_level = 2;
 
 void remove_char(char* s, char c) {
     char* d = s;
@@ -18,37 +19,18 @@ void remove_char(char* s, char c) {
     } while ((*s++ = *d++));
 }
 
-int log_printf (const char *format, ...)
+int log_printf (int level, const char *format, ...)
 {
     va_list arg;
     int done;
-    time_t now;
-    char log_format[1024];
-    char rec[1024];
-    struct tm * timeinfo;
-    char log_time [80];
-    FILE *fp;
-    
-    time(&now);
-    timeinfo = localtime(&now);
-    strftime (log_time, sizeof(log_time), "%x %X", timeinfo);
-    
-    sprintf(log_format, "%s: %s", log_time, format);
-    
+
+    if (level > log_level) {
+        return 0;
+    }
+   
     va_start (arg, format);
-    done = vsprintf (rec, log_format, arg);
+    done = vprintf (format, arg);
     va_end (arg);
 
-    printf ("%s", rec);
-    
-    fp = fopen(log_file, "a+");
-    if (fp) {
-        fprintf (fp, "%s", rec);
-        fclose (fp);
-    } else {
-        fprintf (stderr, "can't open log file %s\n", log_file);
-        return -1;
-    }
-    
     return done;
 }

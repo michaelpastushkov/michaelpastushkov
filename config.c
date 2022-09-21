@@ -43,6 +43,8 @@ int parse_config_line(char *line) {
         mode = strcmp(v, "local") == 0 ? MODE_LOCAL : MODE_REMOTE;
     } else if (strcmp(n, "repeat_time") == 0) {
         repeat_time = atoi(v);
+    } else if (strcmp(n, "log_level") == 0) {
+        log_level = atoi(v);
     } else if (strcmp(n, "daily_limit_mib") == 0) {
         daily_limit_mib = atoi(v);
     } else if (strcmp(n, "geoip") == 0) {
@@ -53,12 +55,12 @@ int parse_config_line(char *line) {
         strncpy(geoip_data, v, sizeof(geoip_data));
     } else if (strcmp(n, "remote_host") == 0) {
         if (rh_index >= MAX_REMOTE_HOSTS) {
-            log_printf("can't handle more than %i remote hosts\n", MAX_REMOTE_HOSTS);
+            log_printf(0, "can't handle more than %i remote hosts\n", MAX_REMOTE_HOSTS);
             return -1;
         }
         p = strchr(v, ':');
         if (!p) {
-            log_printf("%s must be in format host:port\n", line);
+            log_printf(0, "%s must be in format host:port\n", line);
             return -1;
         }
         *p++ = 0;
@@ -77,7 +79,7 @@ int read_config() {
     char line[1024];
     
     if (!fp) {
-        log_printf("can't read config file %s\n", config_file);
+        log_printf(0, "can't read config file %s\n", config_file);
         return -1;
     }
 

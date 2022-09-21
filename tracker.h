@@ -33,6 +33,7 @@ extern char db_schema[32];
 
 extern char geoip_data[256];
 extern int geoip_on;
+extern int log_level;
 
 typedef struct {
     char host[32];
@@ -70,6 +71,6 @@ int check_alerts();
 int db_cleanup();
 
 void remove_char(char* s, char c);
-int log_printf (const char *format, ...);
+int log_printf (int level, const char *format, ...);
 
 #endif /* tracker_h */

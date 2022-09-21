@@ -17,7 +17,7 @@ int read_local() {
 
     FILE *fp = fopen(status_log, "r");
     if (!fp) {
-        log_printf("can't read status file %s\n", status_log);
+        log_printf(0, "can't read status file %s\n", status_log);
         return -1;
     }
 
@@ -26,7 +26,7 @@ int read_local() {
             count ++;
     }
 
-    log_printf("sessions recorded: %i\n", count);
+    log_printf(1, "sessions recorded: %i\n", count);
 
     fclose(fp);
  
