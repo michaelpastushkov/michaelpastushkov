@@ -41,7 +41,6 @@ int main( int argc, char *argv[] ) {
         
         check_alerts();
         
-        /*
         time(&now);
         if (!last_cleanup || now - last_cleanup > (60 * 60 * 24)) {
             if (db_cleanup() == 0) {
@@ -49,7 +48,6 @@ int main( int argc, char *argv[] ) {
             }
             last_cleanup = now;
         }
-         */
 
         if (!repeat_time)
             break;
