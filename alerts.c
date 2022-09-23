@@ -9,10 +9,12 @@
 #include <sys/socket.h>
 
 #define MIB_DIV (1024 * 1024)
+#define MODE_CN 0
+#define MODE_IP 1
 
 int daily_limit_mib = 1024;
 
-int kill_cn(char *cn, char *source) {
+int kill_cn(char *cn, char *ip, char *port, char *source) {
 
     int sockfd;
     char kill_cmd[256];
@@ -20,10 +22,11 @@ int kill_cn(char *cn, char *source) {
     remote_host *rh;
     
     if (strcmp("UNDEF", cn) == 0) {
-        return -2;
+        sprintf(kill_cmd, "kill %s:%s\n", ip, port);
+    } else {
+        sprintf(kill_cmd, "kill %s\n", cn);
     }
     
-    sprintf(kill_cmd, "kill %s\n", cn);
     
     rh = get_host_by_source(source);
     if (!rh)
@@ -42,37 +45,51 @@ int kill_cn(char *cn, char *source) {
     memset(line, 0, sizeof(line));
     read_line(sockfd, line, sizeof(line)); // actual status line
 
-    if (strstr(line, "SUCCESS:") && strstr(line, cn)) {
-        log_printf(1, "connection %s on %s killed\n", cn, source);
-    } else {
-        log_printf(1, "connection %s on %s NOT killed\n", cn, source);
-        log_printf(1, "%s\n", line);
-    }
-    
     close_remote(sockfd);
-    
-    return 0;
+
+    if (strstr(line, "SUCCESS:") && (strstr(line, cn) || strstr(line, ip))) {
+        return 0;
+    } else {
+        log_printf(1, "%s\n", line);
+        return -1;
+    }
 }
 
-int check_alerts() {
+int do_check_alerts(int mode) {
     
     char query[1024];
     char query2[1024];
     char details[256];
-    char killed[128] = "";
     MYSQL_RES *result;
     MYSQL_ROW row;
     char *cn;
+    char *ip;
+    char *port;
     long sbout;
     double mib;
     int alert_count = 0;
     char *source;
-
-    sprintf(query,
-            "SELECT cn, sum(bout), source as sbout FROM sessions\
-            where now() - etime < 60*60*24\
-            GROUP BY cn, source ORDER BY sbout DESC"
+    
+    if (mode == MODE_CN) {
+        /* Detect large dayly traffic consumers with valid CN */
+        sprintf(query,
+            "SELECT cn, max(ip4), max(port), source, sum(bout) as sbout\
+                FROM sessions\
+                WHERE now() - etime < 60*60*24\
+                AND cn != 'UNDEF'\
+                GROUP BY cn, source"
             );
+    } else {
+        /* Detect large dayly traffic UNDEF consumers */
+        sprintf(query,
+            "SELECT max(cn), ip4, port, source, sum(bout) as sbout\
+                FROM sessions\
+                WHERE now() - etime < 60*60*24\
+                AND cn = 'UNDEF'\
+                AND bout > %i\
+                GROUP BY ip4, port, source", daily_limit_mib * MIB_DIV
+            );
+    }
     
     if (db_query(query) != 0) {
         return -1;
@@ -87,34 +104,42 @@ int check_alerts() {
     while ((row = mysql_fetch_row(result))) {
         
         cn = row[0];
-        sbout = atol(row[1]);
-        source = row[2];
+        ip = row[1];
+        port = row[2];
+        source = row[3];
+        sbout = atol(row[4]);
+
         mib = sbout / MIB_DIV;
-        killed[0] = 0;
 
         if (mib > daily_limit_mib) {
-
-            log_printf(2, "alert: mib: %.2f, %i\n", mib, daily_limit_mib);
-            
-            if (kill_cn(cn, source) == 0) {
-                sprintf (killed, "connection on %s killed", source);
-            }
-            
-            sprintf(details,
-                    "Daily traffic limit %i MiB exceeded (%.2f) %s",
-                    daily_limit_mib, mib, killed);
-            sprintf(query2, "INSERT INTO alerts (cn, details) VALUES ('%s', '%s')",
-                    cn, details);
+            int ret = kill_cn(cn, ip, port, source);
+            char *msg = (ret == 0) ? "killed" : "NOT killed";
+            sprintf(details, "connection %s: %s, %s (mib: %.2f)\n", msg, cn, ip, mib);
+            log_printf(1, details);
+            sprintf(query2, "INSERT INTO alerts (details) VALUES ('%s')", details);
             db_query(query2);
-            
             alert_count++;
-
         }
         
     }
     mysql_free_result(result);
     
-    log_printf(1, "alerts: %i\n", alert_count);
+    log_printf(2, "alerts: %i\n", alert_count);
     
+    return 0;
+}
+
+int check_alerts() {
+    
+    int ret;
+
+    ret = do_check_alerts(MODE_CN);
+    if (ret != 0)
+        return ret;
+
+    ret = do_check_alerts(MODE_IP);
+    if (ret != 0)
+        return ret;
+
     return 0;
 }

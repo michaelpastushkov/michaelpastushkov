@@ -24,7 +24,7 @@ int main( int argc, char *argv[] ) {
         return -1;
     }
 
-    log_printf("db_host: %s\n", db_host);
+    log_printf(1, "db_host: %s\n", db_host);
     
     if (db_open() != 0) {
         log_printf(0, "can't connect to database");
@@ -41,6 +41,7 @@ int main( int argc, char *argv[] ) {
         
         check_alerts();
         
+        /*
         time(&now);
         if (!last_cleanup || now - last_cleanup > (60 * 60 * 24)) {
             if (db_cleanup() == 0) {
@@ -48,6 +49,7 @@ int main( int argc, char *argv[] ) {
             }
             last_cleanup = now;
         }
+         */
 
         if (!repeat_time)
             break;

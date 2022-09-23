@@ -73,7 +73,7 @@ int connect_remote(char *mhost, int port) {
     ptr = &((struct sockaddr_in *) res->ai_addr)->sin_addr;
     inet_ntop (res->ai_family, ptr, addrstr, sizeof(addrstr));
     
-    log_printf (1, "connecting to ovpn remote management: %s:%i %s\n",
+    log_printf (2, "connecting to ovpn remote management: %s:%i %s\n",
             addrstr, port, res->ai_canonname);
     
     if (inet_pton(AF_INET, addrstr, &serv_addr.sin_addr)<=0) {
@@ -142,12 +142,12 @@ int read_remote() {
 
         close_remote(sockfd);
         
-        log_printf(1, "lines processed: %i\n", line_count);
+        log_printf(2, "lines processed: %i\n", line_count);
         conn_count++;
 
     }
 
-    log_printf(1, "connections processed: %i\n", conn_count);
+    log_printf(2, "connections processed: %i\n", conn_count);
     
     return 0;
 }

@@ -24,6 +24,7 @@ int check_session(session *ses, char *tf) {
     MYSQL_RES *result = mysql_store_result(con);
     MYSQL_ROW row = mysql_fetch_row(result);
     num = atoi(row[0]);
+
     return num;
 }
 

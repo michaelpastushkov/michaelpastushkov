@@ -38,7 +38,7 @@ void db_close() {
 
 int db_query(char *query) {
     
-    log_printf(2, "SQL: %s\n", query);
+    log_printf(3, "SQL: %s\n", query);
     
     if (mysql_query(con, query)) {
         log_printf(0, "MySQL error: %s\n%s\n", mysql_error(con), query);
@@ -53,10 +53,10 @@ int db_cleanup() {
     int ret;
     char query[1024];
 
-    sprintf(query, "DELETE FROM sessions WHERE etime >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+    sprintf(query, "DELETE FROM sessions WHERE etime < DATE_SUB(NOW(), INTERVAL 7 DAY)");
     ret = db_query(query);
     
-    sprintf(query, "DELETE FROM alerts WHERE date >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+    sprintf(query, "DELETE FROM alerts WHERE date < DATE_SUB(NOW(), INTERVAL 7 DAY)");
     ret += db_query(query);
 
     return ret;
