@@ -69,10 +69,10 @@ int check_alerts() {
     char *source;
     
     sprintf(query,
-        "SELECT max(cn), ip4, port, source, sum(bout) as sbout\
+        "SELECT max(cn), ip4, max(port), source, sum(bout) as sbout\
             FROM sessions\
             WHERE now() - etime < 60*60*24\
-            GROUP BY ip4, port, source"
+            GROUP BY ip4, source"
         );
     
     if (db_query(query) != 0) {
