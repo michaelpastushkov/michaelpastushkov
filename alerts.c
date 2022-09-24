@@ -67,9 +67,7 @@ int check_alerts() {
         "SELECT max(cn), ip4, port, source, sum(bout) as sbout\
             FROM sessions\
             WHERE now() - etime < 60*60*24\
-            AND cn = 'UNDEF'\
-            AND bout > %i\
-            GROUP BY ip4, port, source", daily_limit_mib * MIB_DIV
+            GROUP BY ip4, port, source"
         );
     
     if (db_query(query) != 0) {
