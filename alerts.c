@@ -48,7 +48,7 @@ int kill_cn(char *cn, char *ip, char *port, char *source) {
         (strstr(line, cn) || strstr(line, ip))) {
         return 0;
     } else {
-        log_printf(1, "%s\n", line);
+        log_printf(3, "%s\n", line);
         return -1;
     }
 }
@@ -96,13 +96,13 @@ int check_alerts() {
         mib = sbout / MIB_DIV;
 
         if (mib > daily_limit_mib) {
-            int ret = kill_cn(cn, ip, port, source);
-            char *msg = (ret == 0) ? "killed" : "NOT killed";
-            sprintf(details, "connection %s: %s, %s (mib: %.2f)\n", msg, cn, ip, mib);
-            log_printf(1, details);
-            sprintf(query2, "INSERT INTO alerts (details) VALUES ('%s')", details);
-            db_query(query2);
-            alert_count++;
+            if (kill_cn(cn, ip, port, source) == 0) {
+                sprintf(details, "connection killed: %s, %s (mib: %.2f)\n", cn, ip, mib);
+                log_printf(1, details);
+                sprintf(query2, "INSERT INTO alerts (details) VALUES ('%s')", details);
+                db_query(query2);
+                alert_count++;
+            }
         }
         
     }
