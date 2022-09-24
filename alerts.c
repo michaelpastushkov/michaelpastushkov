@@ -12,14 +12,18 @@
 
 int daily_limit_mib = 1024;
 
-int kill_cn(char *ip, char *port, char *source) {
+int kill_cn(char *cn, char *ip, char *port, char *source) {
 
     int sockfd;
     char kill_cmd[256];
     char line[256];
     remote_host *rh;
     
-    sprintf(kill_cmd, "kill %s:%s\n", ip, port);
+    if (strcmp("UNDEF", cn) == 0) {
+        sprintf(kill_cmd, "kill %s:%s\n", ip, port);
+    } else {
+        sprintf(kill_cmd, "kill %s\n", cn);
+    }
     
     rh = get_host_by_source(source);
     if (!rh)
@@ -91,7 +95,7 @@ int check_alerts() {
         mib = sbout / MIB_DIV;
 
         if (mib > daily_limit_mib) {
-            int ret = kill_cn(ip, port, source);
+            int ret = kill_cn(cn, ip, port, source);
             char *msg = (ret == 0) ? "killed" : "NOT killed";
             sprintf(details, "connection %s: %s, %s (mib: %.2f)\n", msg, cn, ip, mib);
             log_printf(1, details);
