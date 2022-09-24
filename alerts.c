@@ -9,24 +9,17 @@
 #include <sys/socket.h>
 
 #define MIB_DIV (1024 * 1024)
-#define MODE_CN 0
-#define MODE_IP 1
 
 int daily_limit_mib = 1024;
 
-int kill_cn(char *cn, char *ip, char *port, char *source) {
+int kill_cn(char *ip, char *port, char *source) {
 
     int sockfd;
     char kill_cmd[256];
     char line[256];
     remote_host *rh;
     
-    if (strcmp("UNDEF", cn) == 0) {
-        sprintf(kill_cmd, "kill %s:%s\n", ip, port);
-    } else {
-        sprintf(kill_cmd, "kill %s\n", cn);
-    }
-    
+    sprintf(kill_cmd, "kill %s:%s\n", ip, port);
     
     rh = get_host_by_source(source);
     if (!rh)
@@ -47,7 +40,7 @@ int kill_cn(char *cn, char *ip, char *port, char *source) {
 
     close_remote(sockfd);
 
-    if (strstr(line, "SUCCESS:") && (strstr(line, cn) || strstr(line, ip))) {
+    if (strstr(line, "SUCCESS:") && strstr(line, ip)) {
         return 0;
     } else {
         log_printf(1, "%s\n", line);
@@ -55,7 +48,7 @@ int kill_cn(char *cn, char *ip, char *port, char *source) {
     }
 }
 
-int do_check_alerts(int mode) {
+int check_alerts() {
     
     char query[1024];
     char query2[1024];
@@ -70,26 +63,14 @@ int do_check_alerts(int mode) {
     int alert_count = 0;
     char *source;
     
-    if (mode == MODE_CN) {
-        /* Detect large dayly traffic consumers with valid CN */
-        sprintf(query,
-            "SELECT cn, max(ip4), max(port), source, sum(bout) as sbout\
-                FROM sessions\
-                WHERE now() - etime < 60*60*24\
-                AND cn != 'UNDEF'\
-                GROUP BY cn, source"
-            );
-    } else {
-        /* Detect large dayly traffic UNDEF consumers */
-        sprintf(query,
-            "SELECT max(cn), ip4, port, source, sum(bout) as sbout\
-                FROM sessions\
-                WHERE now() - etime < 60*60*24\
-                AND cn = 'UNDEF'\
-                AND bout > %i\
-                GROUP BY ip4, port, source", daily_limit_mib * MIB_DIV
-            );
-    }
+    sprintf(query,
+        "SELECT max(cn), ip4, port, source, sum(bout) as sbout\
+            FROM sessions\
+            WHERE now() - etime < 60*60*24\
+            AND cn = 'UNDEF'\
+            AND bout > %i\
+            GROUP BY ip4, port, source", daily_limit_mib * MIB_DIV
+        );
     
     if (db_query(query) != 0) {
         return -1;
@@ -112,7 +93,7 @@ int do_check_alerts(int mode) {
         mib = sbout / MIB_DIV;
 
         if (mib > daily_limit_mib) {
-            int ret = kill_cn(cn, ip, port, source);
+            int ret = kill_cn(ip, port, source);
             char *msg = (ret == 0) ? "killed" : "NOT killed";
             sprintf(details, "connection %s: %s, %s (mib: %.2f)\n", msg, cn, ip, mib);
             log_printf(1, details);
@@ -129,17 +110,3 @@ int do_check_alerts(int mode) {
     return 0;
 }
 
-int check_alerts() {
-    
-    int ret;
-
-    ret = do_check_alerts(MODE_CN);
-    if (ret != 0)
-        return ret;
-
-    ret = do_check_alerts(MODE_IP);
-    if (ret != 0)
-        return ret;
-
-    return 0;
-}
