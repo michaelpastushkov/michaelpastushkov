@@ -44,7 +44,8 @@ int kill_cn(char *cn, char *ip, char *port, char *source) {
 
     close_remote(sockfd);
 
-    if (strstr(line, "SUCCESS:") && strstr(line, ip)) {
+    if (strstr(line, "SUCCESS:") &&
+        (strstr(line, cn) || strstr(line, ip))) {
         return 0;
     } else {
         log_printf(1, "%s\n", line);
