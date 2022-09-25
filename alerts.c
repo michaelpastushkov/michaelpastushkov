@@ -12,18 +12,11 @@
 
 int daily_limit_mib = 1024;
 
-int kill_cn(char *cn, char *ip, char *port, char *source) {
+int kill_cn(char *kill_cmd, char *source) {
 
     int sockfd;
-    char kill_cmd[256];
     char line[256];
     remote_host *rh;
-    
-    if (strcmp("UNDEF", cn) == 0) {
-        sprintf(kill_cmd, "kill %s:%s\n", ip, port);
-    } else {
-        sprintf(kill_cmd, "kill %s\n", cn);
-    }
     
     rh = get_host_by_source(source);
     if (!rh)
@@ -44,34 +37,143 @@ int kill_cn(char *cn, char *ip, char *port, char *source) {
 
     close_remote(sockfd);
 
-    if (strstr(line, "SUCCESS:") &&
-        (strstr(line, cn) || strstr(line, ip))) {
-        return 0;
-    } else {
+    if (!strstr(line, "SUCCESS:")) {
         log_printf(3, "%s\n", line);
         return -1;
     }
+    
+    return 0;
 }
 
-int check_alerts() {
+
+int record_alert(char *details) {
+    char query[1024];
+    log_printf(1, details);
+    sprintf(query, "INSERT INTO alerts (details) VALUES ('%s')", details);
+    return db_query(query);
+}
+
+int check_alerts_cn() {
     
     char query[1024];
-    char query2[1024];
     char details[256];
+    char kill_cmd[256];
     MYSQL_RES *result;
     MYSQL_ROW row;
     char *cn;
-    char *ip;
-    char *port;
     long sbout;
-    double mib;
+    int mib;
     int alert_count = 0;
     char *source;
     
     sprintf(query,
-        "SELECT max(cn), ip4, max(port), source, sum(bout) as sbout\
+        "SELECT cn, source, sum(bout) as sbout\
             FROM sessions\
-            WHERE now() - etime < 60*60*24\
+            WHERE etime > DATE_SUB(NOW(), INTERVAL 1 DAY)\
+            AND cn != 'UNDEF'\
+            GROUP BY cn, source");
+    
+    if (db_query(query) != 0) {
+        return -1;
+    }
+
+    result = mysql_store_result(con);
+    if (!result) {
+        log_printf(0, "SQL results error");
+        return -1;
+    }
+    
+    while ((row = mysql_fetch_row(result))) {
+        
+        cn = row[0];
+        source = row[1];
+        sbout = atol(row[2]);
+        mib = sbout / MIB_DIV;
+
+        if (mib > daily_limit_mib) {
+            sprintf(kill_cmd, "kill %s\n", cn);
+            if (kill_cn(kill_cmd, source) == 0) {
+                sprintf(details, "connection killed: %s (%i/%i MB)\n",
+                    cn, mib, daily_limit_mib);
+                record_alert(details);
+                alert_count++;
+            }
+        }
+        
+    }
+    mysql_free_result(result);
+    
+    return alert_count;
+}
+
+int kill_undefs(char *ip, char *source, int mib) {
+    
+    char query[1024];
+    char details[256];
+    MYSQL_RES *result;
+    MYSQL_ROW row;
+    char *port;
+    int alert_count = 0;
+    char kill_cmd[256];
+
+    /* Get only most recent UNDEF sessions from the given IP / source,
+       Others should have been killed earlier */
+    sprintf(query,
+        "SELECT port\
+            FROM sessions\
+            WHERE etime > DATE_SUB(NOW(), INTERVAL 10 MINUTE)\
+            AND cn = 'UNDEF'\
+            AND ip4 = '%s' \
+            AND source = '%s'",
+            ip, source);
+
+    //printf("query: %s\n", query);
+    
+    if (db_query(query) != 0) {
+        return -1;
+    }
+
+    result = mysql_store_result(con);
+    if (!result) {
+        log_printf(0, "SQL results error");
+        return -1;
+    }
+    
+    while ((row = mysql_fetch_row(result))) {
+        
+        port = row[0];
+
+        printf("ip: %s, port: %s, source: %s\n", ip, port, source);
+
+        sprintf(kill_cmd, "kill %s:%s\n", ip, port);
+        if (kill_cn(kill_cmd, source) == 0) {
+            sprintf(details, "connection killed: %s:%s (%i/%i MB)\n",
+                ip, port, mib, daily_limit_mib);
+            record_alert(details);
+            alert_count++;
+        }
+    }
+    mysql_free_result(result);
+    return alert_count;
+}
+
+int check_alerts_undef() {
+    
+    char query[1024];
+    MYSQL_RES *result;
+    MYSQL_ROW row;
+    char *ip;
+    long sbout;
+    int mib;
+    int alert_count = 0;
+    char *source;
+
+    sprintf(query,
+        "SELECT ip4, source, sum(bout) as sbout\
+            FROM sessions\
+            WHERE etime > DATE_SUB(NOW(), INTERVAL 1 DAY)\
+            AND cn = 'UNDEF'\
+            AND bout > 1024\
             GROUP BY ip4, source"
         );
     
@@ -87,29 +189,38 @@ int check_alerts() {
     
     while ((row = mysql_fetch_row(result))) {
         
-        cn = row[0];
-        ip = row[1];
-        port = row[2];
-        source = row[3];
-        sbout = atol(row[4]);
-
+        ip = row[0];
+        source = row[1];
+        sbout = atol(row[2]);
         mib = sbout / MIB_DIV;
 
         if (mib > daily_limit_mib) {
-            if (kill_cn(cn, ip, port, source) == 0) {
-                sprintf(details, "connection killed: %s, %s (mib: %.2f)\n", cn, ip, mib);
-                log_printf(1, details);
-                sprintf(query2, "INSERT INTO alerts (details) VALUES ('%s')", details);
-                db_query(query2);
-                alert_count++;
-            }
+            int ret = kill_undefs(ip, source, mib);
+            if (ret < 0)
+                continue;
+            alert_count += ret;
         }
         
     }
     mysql_free_result(result);
     
-    log_printf(2, "alerts: %i\n", alert_count);
+    return alert_count;
+}
+
+
+int check_alerts() {
+
+    int ret = 0;
+    
+    ret += check_alerts_cn();
+    if (ret < 0)
+        return ret;
+
+    ret += check_alerts_undef();
+    if (ret < 0)
+        return ret;
+
+    log_printf(2, "alerts: %i\n", ret);
     
     return 0;
 }
-
