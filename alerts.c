@@ -140,11 +140,7 @@ int kill_undefs(char *ip, char *source, int mib) {
     }
     
     while ((row = mysql_fetch_row(result))) {
-        
         port = row[0];
-
-        printf("ip: %s, port: %s, source: %s\n", ip, port, source);
-
         sprintf(kill_cmd, "kill %s:%s\n", ip, port);
         if (kill_cn(kill_cmd, source) == 0) {
             sprintf(details, "connection killed: %s:%s (%i/%i MB)\n",
