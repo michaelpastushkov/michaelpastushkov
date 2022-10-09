@@ -7,7 +7,7 @@
 
 #include "tracker.h"
 
-static char *config_file = "ovpn-tracker.config";
+static char *config_file = "ovpn-tracker.conf";
 
 int rh_index = 0; // non-kosher but easy way to handle multiple hosts
 
