@@ -43,6 +43,10 @@ int parse_config_line(char *line) {
         mode = strcmp(v, "local") == 0 ? MODE_LOCAL : MODE_REMOTE;
     } else if (strcmp(n, "repeat_time") == 0) {
         repeat_time = atoi(v);
+    } else if (strcmp(n, "check_cn") == 0) {
+        check_cn = strcmp(v, "on") ? 0 : 1;
+    } else if (strcmp(n, "check_undef") == 0) {
+        check_undef = strcmp(v, "on") ? 0 : 1;
     } else if (strcmp(n, "log_level") == 0) {
         log_level = atoi(v);
     } else if (strcmp(n, "daily_limit_mib") == 0) {

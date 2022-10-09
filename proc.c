@@ -22,8 +22,15 @@ int check_session(session *ses, char *tf) {
     db_query(query);
 
     MYSQL_RES *result = mysql_store_result(con);
+    if (!result) {
+        log_printf(0, "SQL results error\n");
+        return -1;
+    }
+    
     MYSQL_ROW row = mysql_fetch_row(result);
     num = atoi(row[0]);
+    
+    mysql_free_result(result);
 
     return num;
 }

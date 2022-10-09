@@ -39,8 +39,10 @@ int main( int argc, char *argv[] ) {
             read_local();
         }
         
-        check_alerts();
-        
+        if (check_cn || check_undef) {
+            check_alerts();
+        }
+            
         time(&now);
         if (!last_cleanup || now - last_cleanup > (60 * 60 * 24)) {
             if (db_cleanup() == 0) {

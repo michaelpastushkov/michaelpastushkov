@@ -11,6 +11,8 @@
 #define MIB_DIV (1024 * 1024)
 
 int daily_limit_mib = 1024;
+int check_cn = 1;
+int check_undef = 1;
 
 int kill_cn(char *kill_cmd, char *source) {
 
@@ -79,7 +81,7 @@ int check_alerts_cn() {
 
     result = mysql_store_result(con);
     if (!result) {
-        log_printf(0, "SQL results error");
+        log_printf(0, "SQL results error\n");
         return -1;
     }
     
@@ -135,7 +137,7 @@ int kill_undefs(char *ip, char *source, int mib) {
 
     result = mysql_store_result(con);
     if (!result) {
-        log_printf(0, "SQL results error");
+        log_printf(0, "SQL results error\n");
         return -1;
     }
     
@@ -179,7 +181,7 @@ int check_alerts_undef() {
 
     result = mysql_store_result(con);
     if (!result) {
-        log_printf(0, "SQL results error");
+        log_printf(0, "SQL results error\n");
         return -1;
     }
     
@@ -208,14 +210,18 @@ int check_alerts() {
 
     int ret = 0;
     
-    ret += check_alerts_cn();
-    if (ret < 0)
-        return ret;
-
-    ret += check_alerts_undef();
-    if (ret < 0)
-        return ret;
-
+    if (check_cn) {
+        ret += check_alerts_cn();
+        if (ret < 0)
+            return ret;
+    }
+    
+    if (check_undef) {
+        ret += check_alerts_undef();
+        if (ret < 0)
+            return ret;
+    }
+    
     log_printf(2, "alerts: %i\n", ret);
     
     return 0;

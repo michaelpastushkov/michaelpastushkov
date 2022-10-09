@@ -138,6 +138,7 @@ int read_remote() {
             if (proc_line(line, remote_hosts[i].host) == 0) {
                 line_count++;
             }
+            
         }
 
         close_remote(sockfd);

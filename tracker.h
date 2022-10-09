@@ -23,6 +23,10 @@ int mode;
 extern int repeat_time;
 extern char status_log[256];
 
+extern int check_cn;
+extern int check_undef;
+extern int kill_connections;
+
 extern int daily_limit_mib;
 
 extern MYSQL *con;
